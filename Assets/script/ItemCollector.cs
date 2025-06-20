@@ -26,12 +26,30 @@ public class ItemCollector : MonoBehaviour
     }
 
     void CollectItem(GameObject item)
+{
+    AudioSource audio = item.GetComponent<AudioSource>();
+
+    if (audio != null && audio.clip != null)
     {
-        Destroy(item);
-        itemsCollected++;
-        UpdateCounter();
-        StartCoroutine(ShowMessage("¡Objeto recogido!"));
+        audio.Play();
+        // Desactivamos el mesh renderer y el collider para que desaparezca visualmente, pero siga sonando
+        foreach (var renderer in item.GetComponentsInChildren<MeshRenderer>())
+            renderer.enabled = false;
+
+        foreach (var collider in item.GetComponents<Collider>())
+            collider.enabled = false;
+
+        Destroy(item, audio.clip.length);
     }
+    else
+    {
+        Destroy(item); // si no tiene sonido, se destruye normal
+    }
+
+    itemsCollected++;
+    UpdateCounter();
+    StartCoroutine(ShowMessage("¡Objeto recogido!"));
+}
 
     void UpdateCounter()
     {
